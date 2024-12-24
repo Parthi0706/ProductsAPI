@@ -33,12 +33,12 @@ namespace ProductsAPI.DataAccess.Contract
         /// </summary>
         /// <param name="id">The ID of the product to retrieve.</param>
         /// <returns>The product if found, or throws an exception if not.</returns>
-        public async Task<Products> GetById(int id)
+        public Products GetById(int id)
         {
             try
             {
                 // Find the product by its ID
-                var product = await _context.Products.FindAsync(id);
+                var product =  _context.Products.FirstOrDefault(p=>p.Id == id);
 
                 // If product is not found, log a warning and throw a KeyNotFoundException
                 if (product == null)

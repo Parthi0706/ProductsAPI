@@ -10,7 +10,7 @@ namespace ProductsAPI.DataAccess.Repository
     public interface IProductDBManager
     {
         IEnumerable<Products> GetAll();
-        Task<Products> GetById(int id);
+        Products GetById(int id);
         Products Add(Products product);
         Products Update(Products product);
         void Delete(int id);

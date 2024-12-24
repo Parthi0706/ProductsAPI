@@ -52,7 +52,7 @@ namespace ProductsAPI.Controllers
         /// <returns>Returns the product if found, or appropriate status code.</returns>
         [HttpGet("GetProductsByid")]
         [RequireQueryParameter("id")]
-        public async Task<IActionResult> GetAllProductsByid([FromQuery] int id)
+        public ActionResult<Products> GetAllProductsByid([FromQuery] int id)
         {
             try
             {
@@ -69,7 +69,8 @@ namespace ProductsAPI.Controllers
                 else
                 {
                     // Return a 400 (Bad Request) if the ID is not valid
-                    return BadRequest("id is required");
+                    _logger.LogError("Id should be not be Zero");
+                    return BadRequest("Id should be not be Zero");
                 }
             }
             catch (Exception ex)
@@ -123,8 +124,7 @@ namespace ProductsAPI.Controllers
         /// </summary>
         /// <param name="product">The product details to be updated.</param>
         /// <returns>Returns a success message or an error.</returns>
-        [HttpPut("UpdateProducts")]
-        [RequireQueryParameter("id")]
+        [HttpPut("UpdateProducts")]       
         public async Task<IActionResult> UpdateProducts([FromBody] Products product)
         {
             try
@@ -136,18 +136,30 @@ namespace ProductsAPI.Controllers
                     _logger.LogError("No product provided to update");
                     return BadRequest(SaveUpdateMessage.NoRecordsUpdate); // Return error if product is null
                 }
-               
-                // Update the product in the database
-                var updatedProduct = _productDBManager.Update(product);
-
-                if (updatedProduct != null && updatedProduct.Id > 0)
+                else
                 {
-                    _logger.LogInformation($"Product with ID {updatedProduct.Id} updated successfully");
-                    return Ok($"{updatedProduct.Name} was {SaveUpdateMessage.Saved}"); // Return success
-                }
+                    if (product.Id > 0)
+                    {
 
-                _logger.LogError("No product was updated");
-                return BadRequest(SaveUpdateMessage.NoRecordsUpdate);
+                        // Update the product in the database
+                        var updatedProduct = _productDBManager.Update(product);
+
+                        if (updatedProduct != null && updatedProduct.Id > 0)
+                        {
+                            _logger.LogInformation($"Product with ID {updatedProduct.Id} updated successfully");
+                            return Ok($"{updatedProduct.Name} was {SaveUpdateMessage.Saved}"); // Return success
+                        }
+
+                        _logger.LogError("No product was updated");
+                        return BadRequest(SaveUpdateMessage.NoRecordsUpdate);
+                    }
+                    else
+                    {
+                        // Return a 400 (Bad Request) if the ID is not valid
+                        _logger.LogError("Id should be not be Zero");
+                        return BadRequest("Id should be not be Zero");
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -168,13 +180,22 @@ namespace ProductsAPI.Controllers
         {
             try
             {
-                _logger.LogInformation("Calling DeleteProducts");
+                if (id > 0)
+                {
+                    _logger.LogInformation("Calling DeleteProducts");
 
-                // Delete the product from the database
-                _productDBManager.Delete(id);
+                    // Delete the product from the database
+                    _productDBManager.Delete(id);
 
-                _logger.LogInformation($"Product with ID {id} deleted successfully");
-                return Ok($"Product was  {SaveUpdateMessage.Deleted}"); // Return success
+                    _logger.LogInformation($"Product with ID {id} deleted successfully");
+                    return Ok($"Product was  {SaveUpdateMessage.Deleted}"); // Return success
+                }
+                else
+                {
+                    // Return a 400 (Bad Request) if the ID is not valid
+                    _logger.LogError("Id should be not be Zero");
+                    return BadRequest("Id should be not be Zero");
+                }
             }
             catch (Exception ex)
             {

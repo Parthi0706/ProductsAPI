@@ -1,4 +1,3 @@
-
 # **API Documentation: Products Management API**
 
 ## **Base URL**
